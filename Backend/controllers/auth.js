@@ -1,0 +1,135 @@
+import User from '../models/user.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+export const signup = async(req, res) => { 
+
+    try {
+
+        const { name, email, password, confirmPassword } = req.body;
+
+        if(!name || !email || !password || !confirmPassword) { 
+
+            return res.status(400).json({
+                success: false,
+                message: "Please enter all the fields"
+            })
+        }
+
+        if (password !== confirmPassword) { 
+
+            return res.status(400).json({
+                success: false,
+                message: "Passwords do not match"
+            })
+        }
+
+        const userExist = await User.findOne({ email: email });
+
+        if (userExist) { 
+
+            return res.status(400).json({
+
+                success: false,
+                message: "User already exists"
+            })
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const userImage = `https://ui-avatars.com/api/?name=${name}&background=random`;
+
+        const user = new User({
+
+            name: name,
+            email: email,
+            password: hashedPassword,
+            profileImage: userImage
+        });
+
+        await user.save();
+
+        return res.status(200).json({
+
+            success: true,
+            message: "User signed up successfully",
+
+        });
+            
+
+    } catch (error) { 
+
+        console.log("Error occured while signing up", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error occured while signing up",
+            error : error.message
+        })
+    }
+}
+
+export const login = async (req, res) => { 
+
+    try {
+
+        const { email, password } = req.body;
+
+        if (!email || !password) { 
+
+            return res.status(400).json({
+
+                success: false,
+                message: "Please enter all the fields"
+            })
+        }
+
+        const userExist = await User.findOne({ email: email }) 
+        
+        if (!userExist) { 
+
+            return res.status(400).json({
+
+                success: false,
+                message: "User does not exist"
+            })
+        }
+
+        const isPasswordMatched = await bcrypt.compare(password, userExist.password);
+
+        if (!isPasswordMatched) { 
+
+            return res.status(400).json({
+
+                success: false,
+                message: "Invalid Credentials"
+            })
+        }
+
+        const payload = {
+            _id: userExist._id,
+            name: userExist.name,
+            email: userExist.email,
+            profileImage: userExist.profileImage
+        }
+
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
+
+        userExist.password = undefined;
+
+        return res.status(200).json({
+
+            success: true,
+            message: 'User logged in successfully',
+            data : userExist,
+            token: token,
+        })
+        
+    } catch (error) { 
+
+        return res.status(500).json({
+
+            success: false,
+            message : "Internal Server Error"
+        })
+    }
+}
