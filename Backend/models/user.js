@@ -17,7 +17,13 @@ const userSchema = new mongoose.Schema({
     },
     profileImage: {
         type: String,
-    }
+    },
+    tasks: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref : 'Task',
+        }
+    ],
 
 }, {
     timestamps: true
