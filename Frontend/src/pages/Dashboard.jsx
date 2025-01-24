@@ -6,7 +6,7 @@ import { Outlet } from "react-router-dom"
 const Dashboard = () => {
 
     return (
-        <div className="w-full h-screen">
+        <div className="w-full h-screen relative">
             <Navbar />
             <div className="w-full h-[calc(100vh-64px)] flex">
                 <Sidebar />
