@@ -1,37 +1,86 @@
 
 import { useDispatch, useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
-import { addTask } from '../../../services/operations/taskHelper';
-import { setAllTasks } from '../../../slices/taskSlice';
+import { addTask, updateTaskData } from '../../../services/operations/taskHelper';
+import { setAllTasks, setEditTask, setTask } from '../../../slices/taskSlice';
 
 const TaskForm = ({ setIsModalOpen }) => {
 
     const { register,
         handleSubmit,
+        setValue,
         formState: { errors }
     } = useForm();
 
     const dispatch = useDispatch();
-    const { editTask,allTasks } = useSelector((state) => state.task);
+    const { editTask, allTasks, task } = useSelector((state) => state.task);
     const { token } = useSelector((state) => state.auth);
+
+    if (editTask) {
+
+        setValue('title', task?.title);
+        setValue('description', task?.description);
+    }
+
+    const isFormChanged = async (data) => {
+
+        if (data.title !== task?.title || data.description !== task?.description) {
+
+            return true;
+        } else {
+
+            return false;
+        }
+    }
 
     const onSubmit = async (data) => {
 
         if (editTask) {
 
-            console.log("Edit task : ", data);
+            const formChanged = isFormChanged(data);
+            if (formChanged) {
+
+                const formData = {};
+                try {
+
+                    if (data.title !== task.title) {
+
+                        formData.title = data.title;
+                    }
+
+                    if (data.description !== task.description) {
+
+                        formData.description = data.description;
+                    }
+
+                    const result = await updateTaskData(task._id, formData, token);
+                    if (result) {
+
+                        dispatch(setAllTasks(allTasks.map((tk) => tk?._id === task._id ? result : tk)));
+                        setIsModalOpen(false);
+                        dispatch(setEditTask(false));
+                        dispatch(setTask(null));
+
+                    }
+
+
+                } catch (error) {
+
+                    console.log("Error occured  : ", error);
+                }
+            }
         } else {
 
             try {
 
                 const result = await addTask(data, token);
-                if (result) { 
+                if (result) {
 
                     console.log("Task added successfully : ", result);
                     dispatch(setAllTasks([...allTasks, result]));
                     setIsModalOpen(false);
                 }
-            } catch (error) { 
+            } catch (error) {
 
                 console.log("Error occured  : ", error);
             }
@@ -66,7 +115,7 @@ const TaskForm = ({ setIsModalOpen }) => {
                 <div>
                     <button
                         className="bg-gray-950 text-white px-4 py-2 rounded-md "
-                     
+
                     >
                         Save
                     </button>

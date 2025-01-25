@@ -102,8 +102,7 @@ export const getTaskByTaskId = async (req, res) => {
 
     try {
            
-        const taskId = req.params;
-
+        const { taskId } = req.params;
         if (!taskId) { 
 
             return res.status(400).json({
@@ -176,11 +175,11 @@ export const editTask = async (req, res) => {
             
             taskExist.description = description;
         }
-        if (important) { 
-
+        if (important !== undefined) {
+             
             taskExist.important = important;
-        }
-        if (completed) {
+        } 
+        if (completed !== undefined) {
             
             taskExist.completed = completed;
         }
