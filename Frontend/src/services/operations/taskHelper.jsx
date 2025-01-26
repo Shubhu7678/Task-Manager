@@ -6,7 +6,9 @@ const { ADD_TASK_API,
     GET_ALL_TASKS_DETAILS,
     GET_TASK_BY_TASK_ID,
     EDIT_TASK_API,
-    DELETE_TASK_API } = taskEndPoints;
+    DELETE_TASK_API,
+   
+} = taskEndPoints;
 
 export const addTask = async (data, token) => {
 

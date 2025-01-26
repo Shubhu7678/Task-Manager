@@ -12,6 +12,5 @@ export const taskEndPoints = {
     GET_ALL_TASKS_DETAILS: BASE_URL + `/api/v1/task/getAllTasksDetails`,
     GET_TASK_BY_TASK_ID: BASE_URL + `/api/v1/task/getTaskByTaskId`,
     EDIT_TASK_API: BASE_URL + `/api/v1/task/editTask`,
-    DELETE_TASK_API: BASE_URL + `/api/v1/task/deleteTask`
-   
+    DELETE_TASK_API: BASE_URL + `/api/v1/task/deleteTask`,   
 }
