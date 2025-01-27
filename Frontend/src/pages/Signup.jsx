@@ -1,15 +1,21 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form'
-import { registerUser } from '../services/operations/authHelper';
+import { useDispatch } from 'react-redux';
+// import { registerUser } from '../services/operations/authHelper';
+import { setSignedData } from '../slices/otpSlice';
+import { sendOtp } from '../services/operations/authHelper';
 const Signup = () => {
 
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const onSubmit = async (data) => {
 
     try {
-      await registerUser(data, navigate);
+      // await registerUser(data, navigate); 
+      dispatch(setSignedData(data));
+      await sendOtp(data.email, navigate);
     } catch (error) {
 
       console.log("Error occured while registering user", error);

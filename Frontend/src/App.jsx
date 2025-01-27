@@ -8,6 +8,7 @@ import CompletedTasks from './components/core/Dashboard/CompletedTasks';
 import IncompletedTasks from './components/core/Dashboard/IncompletedTasks';
 import ProtectedRoutes from './components/core/Auth/PrivateRoutes.jsx';
 import OpenRoutes from './components/core/Auth/OpenRoutes';
+import VerifyEmail from './pages/VerifyEmail';
 
 const App = () => {
 
@@ -26,6 +27,7 @@ const App = () => {
         <Route element={<OpenRoutes />}>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
         </Route>
 
       </Routes>

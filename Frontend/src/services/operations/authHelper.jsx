@@ -4,31 +4,54 @@ import { authEndPoints } from '../apis';
 import axios from 'axios';
 import { setUser, setToken } from '../../slices/authSlice';
 
-const { AUTH_LOGIN_API, AUTH_SIGNUP_API } = authEndPoints;
+const { SEND_OTP_API,AUTH_LOGIN_API, AUTH_SIGNUP_API } = authEndPoints;
 
+
+export const sendOtp = async (email, navigate) => { 
+
+    const toastId = toast.loading('Loading...');
+    try {
+          
+        const response = await axios.post(SEND_OTP_API, { email });
+
+        if (!response.data.success) { 
+
+            throw new Error(response.data.message);
+        }
+
+        toast.dismiss(toastId);
+        toast.success("Otp sent successfully");
+        navigate('/verify-email');
+
+    } catch (error) { 
+
+        console.log("Error occured while sending otp", error);
+        toast.dismiss(toastId);
+        toast.error(error.response.data.message);
+    }
+}
 export const registerUser = async(data,navigate) => { 
 
     const toastId = toast.loading('Loading...');
     try {
           
         const response = await axios.post(AUTH_SIGNUP_API, data);
-
         if (!response.data.success) { 
 
             throw new Error(response.data.message);
         }
             
+        toast.dismiss(toastId);
         navigate("/login");
         toast.success(response.data.message);
         
     } catch (error) { 
 
         console.log("Error occured while registering user", error);
-        toast.error("Error occured while registering user");
+        toast.dismiss(toastId);
+        toast.error(error.response.data.message);
         
     }
-
-    toast.dismiss(toastId);
 }
 
 export const login = async (data,dispatch,navigate) => { 

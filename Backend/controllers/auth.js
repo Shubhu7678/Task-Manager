@@ -1,14 +1,65 @@
 import User from '../models/user.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import Otp from '../models/otp.js';
 
-export const signup = async(req, res) => { 
+export const sendOtp = async (req, res) => {
 
     try {
 
-        const { name, email, password, confirmPassword } = req.body;
+        const { email } = req.body;
 
-        if(!name || !email || !password || !confirmPassword) { 
+        if (!email) {
+
+            return res.status(400).json({
+
+                success: false,
+                message: "Please enter email"
+            });
+        }
+
+        const userExist = await User.findOne({ email: email });
+
+        if (userExist) {
+
+            return res.status(400).json({
+
+                success: true,
+                message: "User already exists"
+            })
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000);
+
+        const otpData = await Otp.create({
+            email: email,
+            otp: otp
+        })
+
+        return res.status(200).json({
+
+            success: true,
+            message: "OTP sent successfully",
+            data: otpData
+        })
+
+    } catch (error) {
+
+        return res.status(500).json({
+
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
+
+export const signup = async (req, res) => {
+
+    try {
+
+        const { otp, name, email, password, confirmPassword } = req.body;
+
+        if (!name || !email || !password || !confirmPassword) {
 
             return res.status(400).json({
                 success: false,
@@ -16,7 +67,7 @@ export const signup = async(req, res) => {
             })
         }
 
-        if (password !== confirmPassword) { 
+        if (password !== confirmPassword) {
 
             return res.status(400).json({
                 success: false,
@@ -26,12 +77,32 @@ export const signup = async(req, res) => {
 
         const userExist = await User.findOne({ email: email });
 
-        if (userExist) { 
+        if (userExist) {
 
             return res.status(400).json({
 
                 success: false,
                 message: "User already exists"
+            })
+        }
+
+        const otpExist = await Otp.findOne({ email: email });
+
+        if (!otpExist) {
+
+            return res.status(400).json({
+
+                success: false,
+                message: "OTP does not exist"
+
+            })
+        }
+
+        if (otpExist.otp !== otp) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Invalid OTP"
             })
         }
 
@@ -55,26 +126,26 @@ export const signup = async(req, res) => {
             message: "User signed up successfully",
 
         });
-            
 
-    } catch (error) { 
+
+    } catch (error) {
 
         console.log("Error occured while signing up", error);
         return res.status(500).json({
             success: false,
             message: "Error occured while signing up",
-            error : error.message
+            error: error.message
         })
     }
 }
 
-export const login = async (req, res) => { 
+export const login = async (req, res) => {
 
     try {
 
         const { email, password } = req.body;
 
-        if (!email || !password) { 
+        if (!email || !password) {
 
             return res.status(400).json({
 
@@ -83,9 +154,9 @@ export const login = async (req, res) => {
             })
         }
 
-        const userExist = await User.findOne({ email: email }) 
-        
-        if (!userExist) { 
+        const userExist = await User.findOne({ email: email })
+
+        if (!userExist) {
 
             return res.status(400).json({
 
@@ -96,7 +167,7 @@ export const login = async (req, res) => {
 
         const isPasswordMatched = await bcrypt.compare(password, userExist.password);
 
-        if (!isPasswordMatched) { 
+        if (!isPasswordMatched) {
 
             return res.status(400).json({
 
@@ -120,16 +191,16 @@ export const login = async (req, res) => {
 
             success: true,
             message: 'User logged in successfully',
-            data : userExist,
+            data: userExist,
             token: token,
         })
-        
-    } catch (error) { 
+
+    } catch (error) {
 
         return res.status(500).json({
 
             success: false,
-            message : "Internal Server Error"
+            message: "Internal Server Error"
         })
     }
 }
