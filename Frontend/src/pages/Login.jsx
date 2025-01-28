@@ -53,8 +53,13 @@ const Login = () => {
                             <div className="mb-2">
                                 <button type="submit" className="w-full px-4 py-3 text-white bg-yellow-600 rounded-md hover:bg-yellow-700 focus:outline-none">Login</button>
                             </div>
-                            <div>
+                            <div className="flex justify-between">
+                                <div>
                                 You do not have an account? <NavLink to="/signup" className="text-blue-600 hover:text-blue-700 transition duration-300 underline">Register</NavLink>
+                                </div>
+                                <div>
+                                    <NavLink to="/forgot-password" className="text-blue-500 hover:text-blue-700 transition duration-300 underline">Forgot Password</NavLink>
+                                </div>
                             </div>
                         </form>
                     </div>

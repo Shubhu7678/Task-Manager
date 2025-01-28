@@ -4,7 +4,9 @@ export const authEndPoints = {
        
     SEND_OTP_API : BASE_URL + '/api/v1/auth/sendOtp',
     AUTH_LOGIN_API: BASE_URL + `/api/v1/auth/login`,
-    AUTH_SIGNUP_API: BASE_URL + `/api/v1/auth/signup`
+    AUTH_SIGNUP_API: BASE_URL + `/api/v1/auth/signup`,
+    SEND_URL_FOR_PASSWORD_RESET_API: BASE_URL + `/api/v1/auth/sendUrlForPasswordReset`,
+    RESET_PASSWORD_API: BASE_URL + `/api/v1/auth/resetPassword`
 }
 
 export const taskEndPoints = {

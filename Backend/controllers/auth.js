@@ -2,6 +2,7 @@ import User from '../models/user.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Otp from '../models/otp.js';
+import { mailSender } from '../utils/mailSender.js';
 
 export const sendOtp = async (req, res) => {
 
@@ -201,6 +202,113 @@ export const login = async (req, res) => {
 
             success: false,
             message: "Internal Server Error"
+        })
+    }
+}
+
+export const sendUrlForPasswordReset = async (req, res) => { 
+
+    try {
+
+        const { email } = req.body;
+
+        if (!email) { 
+
+            return res.status(400).json({
+
+                success: false,
+                message: "Please enter email"
+            })
+        }
+
+        const userExist = await User.findOne({ email: email });
+
+        if (!userExist) { 
+
+            return res.status(400).json({
+
+                success: false,
+                message: "User does not exist"
+            })
+        }
+        
+        const userId = userExist._id;
+        const sendUrl = await mailSender(email, 'Password Reset Link', `http://localhost:3000/reset-password/${userId}`); 
+        
+        if (!sendUrl) { 
+
+            return res.status(400).json({
+                success: false,
+                message: "Failed to send email"
+            })
+
+        }
+
+        return res.status(200).json({
+
+            success: true,
+            message: "Password reset link sent successfully"
+        })
+
+    } catch (error) { 
+
+        return res.status(500).json({
+
+            success: false,
+            message: "Internal Server Error",
+            error : error.message 
+        })
+    }
+}
+
+export const resetPassword = async (req, res) => { 
+
+    try {
+
+        const { userId } = req.params;
+        const { password } = req.body;
+
+        if (!userId || !password) {
+
+            return res.status(400).json({
+
+                success: false,
+                message: "Invalid Credential !"
+            })
+        }
+
+        const userExist = await User.findById(userId);
+
+        if (!userExist) { 
+
+            return res.status(400).json({
+
+                success: false,
+                message: "User does not exist"
+
+            })
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        userExist.password = hashedPassword;
+
+        await userExist.save();
+
+        return res.status(200).json({
+
+            success: true,
+            message: "Password reset successfully"
+        })
+        
+
+    } catch (error) { 
+
+        return res.status(500).json({
+
+            success: false,
+            message: "Internal Server Error",
+            error : error.message
         })
     }
 }

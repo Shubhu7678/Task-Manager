@@ -4,7 +4,7 @@ import { authEndPoints } from '../apis';
 import axios from 'axios';
 import { setUser, setToken } from '../../slices/authSlice';
 
-const { SEND_OTP_API,AUTH_LOGIN_API, AUTH_SIGNUP_API } = authEndPoints;
+const { SEND_OTP_API,AUTH_LOGIN_API, AUTH_SIGNUP_API,SEND_URL_FOR_PASSWORD_RESET_API,RESET_PASSWORD_API } = authEndPoints;
 
 
 export const sendOtp = async (email, navigate) => { 
@@ -78,7 +78,7 @@ export const login = async (data,dispatch,navigate) => {
     } catch (error) { 
 
         console.log("Error occured while logging in user", error);
-        toast.error("Error occured while logging in user");
+        toast.error(error.response.data.message);
         toast.dismiss(toastId);
     }
 }
@@ -91,4 +91,52 @@ export const logout = (navigate,dispatch) => {
     dispatch(setUser(null));
     navigate("/login");
     toast.success("Logged out successfully");
+}
+
+export const sendUrlForPasswordReset = async(email) => { 
+        
+    const toastId = toast.loading('Loading...');
+    try {
+            
+        const response = await axios.post(SEND_URL_FOR_PASSWORD_RESET_API, { email });
+        console.log(response);
+        if (!response.data.success) { 
+
+            throw new Error(response.data.message);
+        }
+
+        toast.dismiss(toastId);
+        toast.success(response.data.message);
+
+    } catch (error) { 
+
+        console.log("Error occured while sending url for password reset", error);
+        toast.dismiss(toastId);
+        toast.error(error.response.data.message);
+    }
+}
+
+export const resetPassword = async (userId, data,navigate) => { 
+
+    const toastId = toast.loading('Loading...');
+    try {
+
+        const response = await axios.put(RESET_PASSWORD_API + `/${userId}`, data);
+
+        if (!response.data.success) { 
+
+            throw new Error(response.data.message);
+        }
+
+        toast.dismiss(toastId);
+        toast.success(response.data.message);
+        navigate("/login");
+
+    } catch (error) { 
+
+        console.log("Error occured while resetting password", error);
+        toast.dismiss(toastId);
+        toast.error(error.response.data.message);
+
+    }
 }

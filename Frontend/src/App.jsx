@@ -9,6 +9,8 @@ import IncompletedTasks from './components/core/Dashboard/IncompletedTasks';
 import ProtectedRoutes from './components/core/Auth/PrivateRoutes.jsx';
 import OpenRoutes from './components/core/Auth/OpenRoutes';
 import VerifyEmail from './pages/VerifyEmail';
+import ForgotPassword from './pages/ForgotPassword.jsx';
+import ResetPassword from './pages/ResetPassword.jsx';
 
 const App = () => {
 
@@ -28,6 +30,9 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:userId" element={<ResetPassword />} />
+          
         </Route>
 
       </Routes>
